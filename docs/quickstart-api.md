@@ -85,9 +85,9 @@ The first step is to POST to `/checkouts` with the following body:
 }
 ```
 
-Note that the property `order_references` is a collection so that even if you don't want to create an order in your system before creating a checkout you should supply a temporary identifier to be able to connect the Wasa Kredit order with something in your system. You still have the option to add additional identifiers when the final order is created.
+Note that the property `order_references` is a collection so that even if you don't want to create an order in your system before creating a Wasa Kredit checkout you have the possibility to supply a temporary identifier to be able to match the Wasa Kredit order with some reference in your system. You also have the option to add additional reference identifiers at a later time, for example when your final order is created.
 
-The URL that you supply with the `ping_url` property should be an endpoint that is set up to receive a POST message and return an http status code 200 response on success.
+The URL that you supply through the `ping_url` property should be an endpoint that is set up to receive a POST message and return an http status code 200 response on success.
 
 You will receive an html snippet which you should embed in your web page, inside of which the Wasa Kredit Checkout widget will handle the payment flow.
 
@@ -137,17 +137,20 @@ orderReferences = [
 ];    
 ```
 
-## Handling order status changes
+## Handling order status changes via pingbacks
 
-Wasa Kredit will create an order at some point in the checkout process, when that is depends on the payment option that the customer has chosen. When the order is updated you will receive a POST to the supplied `ping_url` which contains:
+When calling the Creating Checkout operation, Wasa Kredit will also create an order. When the order is created or when the order status is updated, you will receive a POST to the supplied `ping_url`, which contains the following body:
 
 ```json
 {
-  "order_id" : "9c722707-123a-44e7-9eba-93e3a372d57e"
+  "order_id" : "9c722707-123a-44e7-9eba-93e3a372d57e",
+  "order_status": "initialized"
 }
 ```
 
-Using this id you can now GET from `/orders/{order_id}` which will return the following:
+For further information about the order status flow, see the [order flow chart](https://developer.wasakredit.se/order-flow-chart/).
+
+Using the Wasa Kredit order id (`order_id`), provided in the pingback body, you are able to get the entire order object through a GET from `/orders/{order_id}`, which will return the following response:
 
 ```json
 {
@@ -197,37 +200,55 @@ Using this id you can now GET from `/orders/{order_id}` which will return the fo
 }
 ```
 
-Every time the order is updated you will receive a ping and can fetch the order in the same fashion and can take action on the status that it's in.
-The statuses that an order can be in are:
+Each time the order status is updated you will receive a pingback, enabling you to take action on the status change.
 
+The possible order statuses are:
+
+- initialized
+  - The order has been created but the order agreement has not been signed by the customer.
 - canceled
-  - The purchase was not approved, if you have created an order in your system it can safely be deleted using `order_references`
+  - The purchase was not approved by Wasa Kredit. If you have created an order in your system it can safely be deleted.
 - pending
-  - Wasa Kredit has created the order but it is being processed. You should use customer information and addresses from this order and update the order in your system with using `order_references` to find the matching order. If you have no order in your system you should create one now.
-- ready_to_deliver
-  - The order is approved but has to be delivered to the customer before Wasa Kredit can make the payment to the partner.
-- delivered
-  - This status is set by the partner when the item(s) have been delivered to the customer.
-- completed
-  - The order has been delivered and payed.
+  - The checkout has been completed and a customer has signed the order agreement, but additional signees is required or the order has not yet been fully approved by Wasa Kredit.
+- ready_to_ship
+  - All necessary signees have signed the order agreement and the order has been fully approved by Wasa Kredit. The order must now be shipped to the customer before Wasa Kredit will issue the payment to you as a partner.
+- shipped
+  - This status is set by the partner when the order item(s) have been shipped to the customer.
+
+### Best Practises
+
+The preferred point in time to create the order in your system is when receiveing a pingback with order status "pending".
+
+To match the Wasa Kredit order against your internal cart/checkout/order, issue a GET against `/orders/{order_id}` and use the `order_references`-object in the response.
 
 ## Create order reference
 
-If orders are created in your system after you have made the POST to `/checkouts` you will need to update the Wasa Kredit order with a reference to your order. Perform a POST call to `/orders/{order_id}/order-references` with the body:
+To be able to match your internal cart/checkout/order against the Wasa Kredit order you are able to provide an unlimited set of order references. Order references might be provided in two ways.
+
+1. In the Create Checkout request.
+2. By calling the Add Order Reference operation through a POST to `/orders/{order_id}/order-references`. This might be done at anytime as long as you have the Wasa Kredit order id. *Notice that this operation will add the additional order references to any previous order references.*
+
+The order reference object is a list of key-value pairs where the key is the reference identifier (i.e. describes the type of reference) and the value is the actual reference id.
 
 ```json
-{
-  "key" : "succint_description_of_the_reference",
-  "value" : "123456"
-}
+[
+  {
+    "key" : "partner-cart-reference",
+    "value" : "56065dae-5d00-4ccd-aa8f-009ba8d0d137"
+  },
+  {
+    "key" : "partner-checkout-reference",
+    "value" : "d79903b0-108b-48f5-9ee1-6ca8062031e2"
+  }
+]
 ```
 
-## Complete order
+## Complete an order
 
-1. Perform a GET call to `/orders/{order_id}/status`. This will just return the status that your order is in. If it is `ready_to_deliver` the partner should send the item(s) to the customer.
-2. Perform a PUT call to `/orders/{order_id}/status/{status}` with the status `delivered` when the item(s) have been shipped.
-3. You will receive a ping when Wasa Kredit updates the state of the order, perform a GET call to `/orders/{order_id}/status` to check the status. If it is set to `completed` all payments have been made and the item(s) should be delivered to the customer.
+1. When an order is ready to be shipped to the customer (i.e. it has been signed by all necessary signees and fully approved by Wasa Kredit), you will receive a pingback with order status `ready_to_ship`. You should now ship the order items to the customer.
+2. When the order items are shipped to the customer, call the Update Order Status operation by issuing a PUT to `/orders/{order_id}/status/{status}` with the status `shipped`.
+3. As a confirmation you will now receive a pingback with order status `shipped`.
 
 ## Cancel an order
 
-Simply perform a PUT call to `/orders/{order_id/status/{status}` with the status `canceled`. This can only be done on orders that don't have status `delivered` or `completed`
+To cancel an order, call the Update Order Status operation by issuing a PUT to `/orders/{order_id}/status/{status}` with the status `canceled`. Orders that have already been shipped cannot be canceled.
