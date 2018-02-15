@@ -139,7 +139,7 @@ orderReferences = [
 
 ## Handling order status changes via pingbacks
 
-When calling the Creating Checkout operation, Wasa Kredit will also create an order. When the order is created or when the order status is updated, you will receive a POST to the supplied `ping_url`, which contains the following body:
+When calling the Create Checkout operation, Wasa Kredit will also create an order. When the order is created or when the order status is updated, you will receive a POST to the supplied `ping_url`, which contains the following body:
 
 ```json
 {
@@ -200,6 +200,8 @@ Using the Wasa Kredit order id (`order_id`), provided in the pingback body, you 
 }
 ```
 
+### Pingback Statuses
+
 Each time the order status is updated you will receive a pingback, enabling you to take action on the status change.
 
 The possible order statuses are:
@@ -242,6 +244,8 @@ The order reference object is a list of key-value pairs where the key is the ref
   }
 ]
 ```
+
+Order referenses are added one at a time through POSTs to `/orders/{order_id}/order-references`.
 
 ## Complete an order
 

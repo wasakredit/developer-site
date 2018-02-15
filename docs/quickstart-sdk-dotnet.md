@@ -5,14 +5,12 @@
 * [Authentication](#authentication)
 * [Initialize WasaKreditClient](#initialize_wasakreditclient)
 * [Create checkout](#create_checkout)
+* [Initialize checkout](#initialize_checkout)
 * [Handling custom checkout callbacks](#custom_callbacks)
-* [Get order](#get_order)
-* [Get order status](#get_order_status)
-* [Create order reference](#create_order_reference)
-* [Update order status](#update_order_status)
-* [Cancel an order](#cancel_an_order)
-
-
+* [Handling order status changes via pingbacks](#pingbacks)
+* [Add order references](#add_order_reference)
+* [Complete an order](#complete_order)
+* [Cancel an order](#cancel_order)
 
 ---
 
@@ -31,8 +29,7 @@ authenticationClient.GetAccessToken();
 
 ## <a name="initialize_wasakreditclient">Initialize WasaKreditClient</a>
 
-Create a new instance of WasaKreditClient by getting the `Instance` property of the WasaKreditClient and calling
-the `Initialize` method passing your `AuthenticationClient` and a boolean representing whether or not you wish
+Get the singleton instance of WasaKreditClient by getting the `Instance` property of the WasaKreditClient. Call the `Initialize` method passing your `AuthenticationClient` and a boolean representing whether or not you wish
 to use the client in test mode or not.
 
 ```c#
@@ -45,6 +42,8 @@ wasaKreditClient.Initialize(authenticationClient, testMode);
 ## <a name="create_checkout">Create checkout</a>
 
 Create a new checkout request and pass it to the `CreateCheckout` method on your `WasaKreditClient`.
+
+### Create checkout example
 
 ```c#
 var request = new CreateCheckoutRequest
@@ -113,13 +112,15 @@ var request = new CreateCheckoutRequest
 var response = wasaKreditClient.CreateCheckout(request);
 ```
 
-Note that the property `order_references` is a collection so that even if you don't want to create an order in your system before creating a checkout you should supply a temporary identifier to be able to connect the Wasa Kredit order with something in your system. You still have the option to add additional identifiers when the final order is created.
+Note that the `OrderReferences` property is a collection. Even if you don't want to create an order in your system at before creating a Wasa Kredit checkout, you have the possibility to supply a temporary identifier to be able to match the Wasa Kredit order with some reference in your system. You also have the option to add additional reference identifiers at a later time, for example when your final order is created (see [Add order references](#add_order_reference)).
 
-The URL that you supply with the `ping_url` property should be an endpoint that is set up to receive a POST message and return an http status code 200 response on success.
+The URL that you supply with the `PingUrl` property should be an endpoint that is set up to receive a POST message and return an http status code 200 response on success.
 
-You will receive an html snippet which you should embed in your web page, inside of which the Wasa Kredit Checkout widget will handle the payment flow.
+The return object of the `CreateCheckout` method is a html snippet which you should embed in your web page, inside of which the Wasa Kredit Checkout widget will handle the payment flow.
 
-When you want to initialize the checkout, just call the global ```window.wasaCheckout.init()```.
+## <a name="initialize_checkout">Initialize checkout</a>
+
+After creating a Wasa Kredit Checkout by calling the `CreateCheckout` method and embedding the resulting html snippet in your web page, the checkout must be initialized by calling the global javascript function ```window.wasaCheckout.init()```.
 
 ```javascript
 <script>
@@ -127,9 +128,9 @@ When you want to initialize the checkout, just call the global ```window.wasaChe
 </script>
 ```
 
-## <a name="custom_callbacks">Handling custom checkout callbacks</a>
+### <a name="custom_callbacks">Handling custom checkout callbacks</a>
 
-Optionally, you're able to pass an options object to the ```init```-function. Use this if you want to manually handle the onComplete, onRedirect and onCancel events.
+Optionally, you're able to pass an options object to the ```init``` javascript function. Use this if you want your own custom handling of the onComplete, onRedirect and onCancel  checkout events.
 
 ```javascript
 <script>
@@ -156,37 +157,102 @@ The ```onCancel``` event will be raised if the checkout process is canceled by t
 
 All callback functions will get the ```orderReferences``` parameter passed from the checkout. This parameter consists of an Array of ```KeyValue``` objects.
 
-These are the same values as the ones that was passed to the ```CreateCheckout```-method as the ```order_references``` property and also Wasa Kredit order id.
+These are the same values as the ones that was passed to the ```CreateCheckout``` method as the ```OrderReferences``` property and also Wasa Kredit order id.
 
-```javascript
-orderReferences = [
-    { key: "wasakredit-order-id", value: "9c722707-123a-44e7-9eba-93e3a372d57e" },
-    { key: "partner_checkout_id", value: "900123" },
-    { key: "partner_reserved_order_number", value: "123456" }
-];    
-```
+## <a name="pingbacks">Handling order status changes via pingbacks</a>
 
-## <a name="get_order">Get Order</a>
-
-Wasa Kredit will create an order at some point in the checkout process, when that is depends on the payment option that the customer has chosen. When the order is updated you will receive a POST to the supplied `ping_url` which contains:
+When calling the `CreateCheckout` method, Wasa Kredit will create an order. When the order is created or when the order status is updated, you will receive a POST to the supplied `PingUrl`, which contains the following body:
 
 ```json
 {
-  "order_id" : "9c722707-123a-44e7-9eba-93e3a372d57e"
+  "order_id" : "9c722707-123a-44e7-9eba-93e3a372d57e",
+  "order_status": "initialized"
 }
 ```
 
-To get the order referenced by the id simply call
+For further information about the order status flow, see the [order flow chart](https://developer.wasakredit.se/order-flow-chart/).
 
+Using the Wasa Kredit order id (`order_id`), provided in the pingback body, you are able to get the entire order object by calling the [GetOrder](#get_order_method) method.
+
+### Get order example
 ```c#
 var orderId = "9c722707-123a-44e7-9eba-93e3a372d57e";
-
 var order = wasaKreditClient.GetOrder(orderId);
 ```
 
-### Response
+The response object from the `GetOrder` method is quite extensive. For further information about this response object see [GetOrderResponse](#get_order_response)
 
-#### GetOrderResponse
+### Pingback Statuses
+
+Each time the order status is updated you will receive a pingback, enabling you to take action on the status change.
+
+The possible order statuses are:
+
+- initialized
+  - The order has been created but the order agreement has not been signed by the customer.
+- canceled
+  - The purchase was not approved by Wasa Kredit. If you have created an order in your system it can safely be deleted.
+- pending
+  - The checkout has been completed and a customer has signed the order agreement, but additional signees is required or the order has not yet been fully approved by Wasa Kredit.
+- ready_to_ship
+  - All necessary signees have signed the order agreement and the order has been fully approved by Wasa Kredit. The order must now be shipped to the customer before Wasa Kredit will issue the payment to you as a partner.
+- shipped
+  - This status is set by the partner when the order item(s) have been shipped to the customer.
+
+### Best practises
+
+The preferred point in time to create the order in your system is when receiveing a pingback with order status "pending".
+
+To match the Wasa Kredit order against your internal cart/checkout/order, call the `GetOrder` method and use the `OrderReferences` property in the return object.
+
+## <a name="add_order_reference">Add order references</a>
+
+To be able to match your internal cart/checkout/order against the Wasa Kredit order you are able to provide an unlimited set of order references. Order references might be provided in two ways.
+
+1. In the Create Checkout request.
+2. By calling the `AddOrderReference` method. This might be done at anytime as long as you have the Wasa Kredit order id. *Notice that this operation will add the additional order references to any previous order references.*
+
+The order reference object is a collection of key-value pairs where the key is the reference identifier (i.e. describes the type of reference) and the value is the actual reference id.
+
+Order referenses are added one at a time by calling the `AddOrderReference` method.
+
+### Add order reference example
+
+```c#
+string orderId = "9c722707-123a-44e7-9eba-93e3a372d57e";
+string quoteId = "fce34f82-de23-4f29-b19b-5e01bc4a3cf6";
+var request = new AddOrderReferenceRequest { Key = "Quote", Value = quoteId };
+var response = client.AddOrderReference(orderId, request);
+```
+
+## <a name="complete_order">Complete an order</a>
+
+1. When an order is ready to be shipped to the customer (i.e. it has been signed by all necessary signees and is fully approved by Wasa Kredit), you will receive a pingback with order status `ready_to_ship`. You should now ship the order items to the customer.
+2. When the order items are shipped to the customer, call the `UpdateOrderStatus` method (see example below) with the status `shipped`.
+3. As a confirmation you will now receive a pingback with order status `shipped`.
+
+## <a name="cancel_order">Cancel an order</a>
+
+To cancel an order, call the `UpdateOrderStatus` method (see example below) with the status `canceled`. Orders that have already been shipped cannot be canceled.
+
+### Update order status example
+
+```c#
+
+var orderId = "9c722707-123a-44e7-9eba-93e3a372d57e";
+
+var request = new UpdateOrderStatusRequest
+{
+    OrderId = orderId,
+    Status = new OrderStatus {Status = "shipped"}
+};
+
+var response = client.UpdateOrderStatus(request);
+```
+
+## Responses
+
+### <a name="get_order_response">GetOrderResponse</a>
 | Name | Type | Description |
 |---|---|---|
 | CustomerOrganizationNumber | *string* | The organization number of the customer who made the purchase. |
@@ -199,7 +265,7 @@ var order = wasaKreditClient.GetOrder(orderId);
 | Status | *OrderStatus* | The status that the order is in at Wasa Kredit. |
 | CartItem | *List[Cart Item]* | A list of the items purchased as Cart Item objects. |
 
-#### Address
+### Address
 
 | Name | Type | Description |
 |---|---|---|
@@ -209,117 +275,13 @@ var order = wasaKreditClient.GetOrder(orderId);
 | City | *string* | City |
 | Country | *string* | Country |
 
-#### OrderReference
+### OrderReference
 | Name | Type | Description |
 |---|---|---|
 | Key | *string* | A key to succinctly describe the reference. *Ex: "temp_order_reference"*. |
 | Value | *string* | The actual order reference value. |
 
-#### OrderStatus
+### OrderStatus
 | Name | Type | Description |
 |---|---|---|
 | Status | *string* | The status that the order is in at Wasa Kredit. |
-
-
-## <a name="get_order_status">Get order status</a>
-
-Every time the order is updated you will receive a ping and can fetch the [order](#get_order) or just fetch the status with `GetOrderStatus` and can take action on the status that it's in.
-
-To get the order status by the id simply call
-
-```c#
-var orderId = "9c722707-123a-44e7-9eba-93e3a372d57e";
-
-var order = wasaKreditClient.GetOrderStatus(orderId);
-```
-
-### Response
-
-#### GetOrderStatusResponse
-| Name | Type | Description |
-|---|---|---|
-| Status | *OrderStatus* | The order identifier. |
-
-#### OrderStatus
-| Name | Type | Description |
-|---|---|---|
-| Status | *string* | The current order status at Wasa Kredit. |
-
-
-The statuses that an order can be in are:
-
-- canceled
-  - The purchase was not approved, if you have created an order in your system it can safely be deleted using `order_references`
-- pending
-  - Wasa Kredit has created the order but it is being processed. You should use customer information and addresses from this order and update the order in your system with using `order_references` to find the matching order. If you have no order in your system you should create one now.
-- ready_to_ship
-  - The order is approved but has to be shipped to the customer before Wasa Kredit can make the payment to the partner.
-- shipped
-  - This status is set by the partner when the item(s) have been shipped to the customer.
-- completed
-  - The order has been shipped and payed.
-
-## <a name="create_order_reference">Create order reference</a>
-
-If orders are created in your system after you have created the checkout you will need to update the Wasa Kredit order with a reference to your order. Using the order id you received in the initial ping you can perform the following:
-
-```c#
-string orderId = "9c722707-123a-44e7-9eba-93e3a372d57e",
-var request = new AddOrderReferenceRequest {Key = "Quote", Value = Guid.NewGuid().ToString()};
-
-var response = client.AddOrderReference(orderId, request);
-```
-
-## <a name="update_order_status">Update order status</a>
-
-After Wasa Kredit has finished their internal checks of the payment you will receive a ping on the supplied ping url. At this time you should check the status of the order and if everything is in order, ship the items and set the status to `shipped`. See an example below:
-
-```c#
-
-var orderId = "9c722707-123a-44e7-9eba-93e3a372d57e";
-
-var status = wasaKreditClient.GetOrderStatus(orderId);
-
-if(status != "ready_to_ship")
-{
-    // you could of course check for other statuses like 'canceled' and take necessary actions related to that status here
-    return;
-}
-
-var request = new UpdateOrderStatusRequest
-{
-    OrderId = orderId,
-    Status = new OrderStatus {Status = "shipped"}
-};
-
-var response = client.UpdateOrderStatus(request);
-```
-
-## <a name="complete_order">Complete order</a>
-
-After an order has been shipped by the and the status has been set to `shipped` you will receive a ping when Wasa Kredit has performed any final validations and made the payment to the partner. To validate the status of the order, refer to the following example:
-
-```c#
-var orderId = "9c722707-123a-44e7-9eba-93e3a372d57e";
-
-var status = wasaKreditClient.GetOrderStatus(orderId);
-
-if(status == "completed")
-{
-	// Any steps that you wish to perform on your end
-}
-```
-
-## <a name="cancel_an_order">Cancel an order</a>
-
-To cancel an order simply call ```UpdateOrderStatus(UpdateOrderStatusRequest)``` with the status `canceled`. Note that this can only be done if the current status is not `shipped` or `completed`. See example below:
-
-```c#
-var request = new UpdateOrderStatusRequest
-{
-    OrderId = "9c722707-123a-44e7-9eba-93e3a372d57e",
-    Status = new OrderStatus {Status = "canceled"}
-};
-
-var response = client.UpdateOrderStatus(request);
-```
