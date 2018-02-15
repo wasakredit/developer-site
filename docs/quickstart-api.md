@@ -209,22 +209,24 @@ The possible order statuses are:
 - canceled
   - The purchase was not approved by Wasa Kredit. If you have created an order in your system it can safely be deleted.
 - pending
-  - The customer has signed the order agreement but all additional, necessary signees haven't signed the agreement or the order has not yet been fully approved by Wasa Kredit.
+  - The checkout has been completed and a customer has signed the order agreement, but additional signees is required or the order has not yet been fully approved by Wasa Kredit.
 - ready_to_ship
   - All necessary signees have signed the order agreement and the order has been fully approved by Wasa Kredit. The order must now be shipped to the customer before Wasa Kredit will issue the payment to you as a partner.
 - shipped
   - This status is set by the partner when the order item(s) have been shipped to the customer.
 
 ### Best Practises
+
 The preferred point in time to create the order in your system is when receiveing a pingback with order status "pending".
 
 To match the Wasa Kredit order against your internal cart/checkout/order, issue a GET against `/orders/{order_id}` and use the `order_references`-object in the response.
 
 ## Create order reference
+
 To be able to match your internal cart/checkout/order against the Wasa Kredit order you are able to provide an unlimited set of order references. Order references might be provided in two ways.
 
 1. In the Create Checkout request.
-1. By calling the Add Order Reference operation through a POST to `/orders/{order_id}/order-references`. This might be done at anytime as long as you have the Wasa Kredit order id. *Notice that this operation will add the additional order references to any previous order references.*
+2. By calling the Add Order Reference operation through a POST to `/orders/{order_id}/order-references`. This might be done at anytime as long as you have the Wasa Kredit order id. *Notice that this operation will add the additional order references to any previous order references.*
 
 The order reference object is a list of key-value pairs where the key is the reference identifier (i.e. describes the type of reference) and the value is the actual reference id.
 
@@ -249,4 +251,4 @@ The order reference object is a list of key-value pairs where the key is the ref
 
 ## Cancel an order
 
-To cancel an order, call the Update Order Status operation by issuing a PUT to `/orders/{order_id/status/{status}` with the status `canceled`. Orders that have already been shipped cannot be canceled.
+To cancel an order, call the Update Order Status operation by issuing a PUT to `/orders/{order_id}/status/{status}` with the status `canceled`. Orders that have already been shipped cannot be canceled.
