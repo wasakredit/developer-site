@@ -93,7 +93,7 @@ You will receive an html snippet which you should embed in your web page, inside
 
 ## Initialize checkout
 
-After creating the Wasa Kredit checkout by POSTing to `/checkouts`, as described above, the resulting html snippet needs to be explicitly initialized through a javascript call to the global `window.wasaCheckout.init()` function. The `init` method call will populate the \<div\> contained in the html snippet and link it to an internal iframe.
+After creating the Wasa Kredit checkout by POSTing to `/checkouts` and embedding the resulting html snippet in your web page, as described above, the checkout html snippet needs to be explicitly initialized through a javascript call to the global `window.wasaCheckout.init()` function. The `init` method call will populate the \<div\> contained in the html snippet and link it to an internal iframe.
 
 ```javascript
 <script>
