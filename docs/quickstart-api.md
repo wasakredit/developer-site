@@ -91,7 +91,7 @@ The URL that you supply through the `ping_url` property should be an endpoint th
 
 You will receive an html snippet which you should embed in your web page, inside of which the Wasa Kredit Checkout widget will handle the payment flow.
 
-When you want to initialize the checkout, just call the global ```window.wasaCheckout.init()```.
+When you want to initialize the checkout, just call the global `window.wasaCheckout.init()`.
 
 ```javascript
 <script>
@@ -101,7 +101,7 @@ When you want to initialize the checkout, just call the global ```window.wasaChe
 
 ### Handling custom checkout callbacks
 
-Optionally, you're able to pass an options object to the ```init```-function. Use this if you want to manually handle the onComplete, onRedirect and onCancel events.
+Optionally, you're able to pass an options object to the `init`-function. Use this if you want to manually handle the onComplete, onRedirect and onCancel events.
 
 ```javascript
 <script>
@@ -120,15 +120,15 @@ Optionally, you're able to pass an options object to the ```init```-function. Us
 </script>
 ```
 
-The ```onComplete``` event will be raised when a User has completed the checkout process. We recommend that you convert your cart/checkout to an order here if you haven't done it already.
+The `onComplete` event will be raised when a User has completed the checkout process. We recommend that you convert your cart/checkout to an order here if you haven't done it already.
 
-The ```onRedirect``` event will be raised the user clicks the "back to store/proceed"-button. The default behaviour will redirect the user to the ```confirmation_callback_url``` passed into the ```CreateCheckout```-request.
+The `onRedirect` event will be raised the user clicks the "back to store/proceed"-button. The default behaviour will redirect the user to the `confirmation_callback_url` passed into the `CreateCheckout`-request.
 
-The ```onCancel``` event will be raised if the checkout process is canceled by the user or Wasa Kredit.
+The `onCancel` event will be raised if the checkout process is canceled by the user or Wasa Kredit.
 
-All callback functions will get the ```orderReferences``` parameter passed from the checkout. This parameter consists of an Array of ```KeyValue``` objects.
+All callback functions will get the `orderReferences` parameter passed from the checkout. This parameter consists of an Array of `KeyValue` objects.
 
-These are the same values as the ones that was passed to the ```CreateCheckout```-request as the ```order_references``` property.
+These are the same values as the ones that was passed to the `CreateCheckout`-request as the `order_references` property.
 
 ```javascript
 orderReferences = [

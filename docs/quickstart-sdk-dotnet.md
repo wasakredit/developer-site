@@ -120,7 +120,7 @@ The return object of the `CreateCheckout` method is a html snippet which you sho
 
 ## <a name="initialize_checkout">Initialize checkout</a>
 
-After creating a Wasa Kredit Checkout by calling the `CreateCheckout` method and embedding the resulting html snippet in your web page, the checkout must be initialized by calling the global javascript function ```window.wasaCheckout.init()```.
+After creating a Wasa Kredit Checkout by calling the `CreateCheckout` method and embedding the resulting html snippet in your web page, the checkout must be initialized by calling the global javascript function `window.wasaCheckout.init()`.
 
 ```javascript
 <script>
@@ -130,7 +130,7 @@ After creating a Wasa Kredit Checkout by calling the `CreateCheckout` method and
 
 ### <a name="custom_callbacks">Handling custom checkout callbacks</a>
 
-Optionally, you're able to pass an options object to the ```init``` javascript function. Use this if you want your own custom handling of the onComplete, onRedirect and onCancel  checkout events.
+Optionally, you're able to pass an options object to the `init` javascript function. Use this if you want your own custom handling of the onComplete, onRedirect and onCancel checkout events.
 
 ```javascript
 <script>
@@ -149,15 +149,15 @@ Optionally, you're able to pass an options object to the ```init``` javascript f
 </script>
 ```
 
-The ```onComplete``` event will be raised when a user has completed the checkout process. We recommend that you convert your cart/checkout to an order here if you haven't done it already.
+The `onComplete` event will be raised when a user has completed the checkout process. We recommend that you convert your cart/checkout to an order here if you haven't done it already.
 
-The ```onRedirect``` event will be raised the user clicks the "back to store/proceed"-button.
+The `onRedirect` event will be raised the user clicks the "back to store/proceed"-button.
 
-The ```onCancel``` event will be raised if the checkout process is canceled by the user or Wasa Kredit.
+The `onCancel` event will be raised if the checkout process is canceled by the user or Wasa Kredit.
 
-All callback functions will get the ```orderReferences``` parameter passed from the checkout. This parameter consists of an Array of ```KeyValue``` objects.
+All callback functions will get the `orderReferences` parameter passed from the checkout. This parameter consists of an Array of `KeyValue` objects.
 
-These are the same values as the ones that was passed to the ```CreateCheckout``` method as the ```OrderReferences``` property and also Wasa Kredit order id.
+These are the same values as the ones that was passed to the `CreateCheckout` method as the `OrderReferences` property and also Wasa Kredit order id.
 
 ## <a name="pingbacks">Handling order status changes via pingbacks</a>
 
@@ -175,6 +175,7 @@ For further information about the order status flow, see the [order flow chart](
 Using the Wasa Kredit order id (`order_id`), provided in the pingback body, you are able to get the entire order object by calling the [GetOrder](#get_order_method) method.
 
 ### Get order example
+
 ```c#
 var orderId = "9c722707-123a-44e7-9eba-93e3a372d57e";
 var order = wasaKreditClient.GetOrder(orderId);
@@ -253,6 +254,7 @@ var response = client.UpdateOrderStatus(request);
 ## Responses
 
 ### <a name="get_order_response">GetOrderResponse</a>
+
 | Name | Type | Description |
 |---|---|---|
 | CustomerOrganizationNumber | *string* | The organization number of the customer who made the purchase. |
@@ -276,12 +278,14 @@ var response = client.UpdateOrderStatus(request);
 | Country | *string* | Country |
 
 ### OrderReference
+
 | Name | Type | Description |
 |---|---|---|
 | Key | *string* | A key to succinctly describe the reference. *Ex: "temp_order_reference"*. |
 | Value | *string* | The actual order reference value. |
 
 ### OrderStatus
+
 | Name | Type | Description |
 |---|---|---|
 | Status | *string* | The status that the order is in at Wasa Kredit. |
