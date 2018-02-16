@@ -120,7 +120,7 @@ The return object of the `CreateCheckout` method is a html snippet which you sho
 
 ## <a name="initialize_checkout">Initialize checkout</a>
 
-After creating a Wasa Kredit Checkout by calling the `CreateCheckout` method and embedding the resulting html snippet in your web page, the checkout must be initialized by calling the global javascript function `window.wasaCheckout.init()`.
+After creating a Wasa Kredit Checkout by calling the `CreateCheckout` method and embedding the resulting html snippet in your web page, as described above, the checkout html snippet needs to be explicitly initialized through a javascript call to the global `window.wasaCheckout.init()` function. The `init` method call will populate the \<div\> contained in the html snippet and link it to an internal iframe.
 
 ```javascript
 <script>
