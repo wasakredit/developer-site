@@ -93,7 +93,7 @@ You will receive an html snippet which you should embed in your web page, inside
 
 ## Initialize checkout
 
-After creating the Wasa Kredit checkout by POSTing to `/checkouts` and embedding the resulting html snippet in your web page, as described above, the checkout html snippet needs to be explicitly initialized through a javascript call to the global `window.wasaCheckout.init()` function. The `init` method call will populate the \<div\> contained in the html snippet and link it to an internal iframe.
+After creating the Wasa Kredit checkout by POSTing to `/checkouts` and embedding the resulting html snippet in your web page, as described above, the checkout html snippet needs to be explicitly initialized through a javascript call to the global `window.wasaCheckout.init()` function. The `init` method call will populate the `<div>` contained in the html snippet and link it to an internal iframe.
 
 ```javascript
 <script>
@@ -124,13 +124,13 @@ Optionally, you're able to pass an options object to the `init`-function. Use th
 
 The `onComplete` event will be raised when a User has completed the checkout process. We recommend that you convert your cart/checkout to an order here if you haven't done it already.
 
-The `onRedirect` event will be raised the user clicks the "back to store/proceed"-button. The default behaviour will redirect the user to the `confirmation_callback_url` passed into the `CreateCheckout`-request.
+The `onRedirect` event will be raised the user clicks the "back to store/proceed"-button. The default behaviour will redirect the user to the `confirmation_callback_url` passed into the Create Checkout (POST to `/checkouts`) request.
 
 The `onCancel` event will be raised if the checkout process is canceled by the user or Wasa Kredit.
 
 All callback functions will get the `orderReferences` parameter passed from the checkout. This parameter consists of an Array of `KeyValue` objects.
 
-These are the same values as the ones that was passed to the `CreateCheckout`-request as the `order_references` property.
+These are the same values as the ones that was passed through the Create Checkout request as the `order_references` property.
 
 ```javascript
 orderReferences = [
@@ -211,7 +211,7 @@ The possible order statuses are:
 - initialized
   - The order has been created but the order agreement has not been signed by the customer.
 - canceled
-  - The purchase was not approved by Wasa Kredit. If you have created an order in your system it can safely be deleted.
+  - The purchase was not approved by Wasa Kredit or it has been canceled by you as a partner. If you have created an order in your system it can safely be deleted.
 - pending
   - The checkout has been completed and a customer has signed the order agreement, but additional signees is required or the order has not yet been fully approved by Wasa Kredit.
 - ready_to_ship
@@ -229,7 +229,7 @@ To match the Wasa Kredit order against your internal cart/checkout/order, issue 
 
 To be able to match your internal cart/checkout/order against the Wasa Kredit order you are able to provide an unlimited set of order references. Order references might be provided in two ways.
 
-1. In the Create Checkout request.
+1. In the Create Checkout request (POST to `/checkouts`).
 2. By calling the Add Order Reference operation through a POST to `/orders/{order_id}/order-references`. This might be done at anytime as long as you have the Wasa Kredit order id. *Notice that this operation will add the additional order references to any previous order references.*
 
 The order reference object is a list of key-value pairs where the key is the reference identifier (i.e. describes the type of reference) and the value is the actual reference id.

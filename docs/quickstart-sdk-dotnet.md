@@ -29,7 +29,7 @@ authenticationClient.GetAccessToken();
 
 ## <a name="initialize_wasakreditclient">Initialize WasaKreditClient</a>
 
-Get the singleton instance of WasaKreditClient by getting the `Instance` property of the WasaKreditClient. Call the `Initialize` method passing your `AuthenticationClient` and a boolean representing whether or not you wish
+Get the singleton instance of WasaKreditClient by getting the `Instance` property of the WasaKreditClient. Call the `Initialize` method passing your `AuthenticationClient` and a boolean indicating whether you wish
 to use the client in test mode or not.
 
 ```c#
@@ -112,7 +112,7 @@ var request = new CreateCheckoutRequest
 var response = wasaKreditClient.CreateCheckout(request);
 ```
 
-Note that the `OrderReferences` property is a collection. Even if you don't want to create an order in your system at before creating a Wasa Kredit checkout, you have the possibility to supply a temporary identifier to be able to match the Wasa Kredit order with some reference in your system. You also have the option to add additional reference identifiers at a later time, for example when your final order is created (see [Add order references](#add_order_reference)).
+Note that the `OrderReferences` property is a collection. Even if you don't want to create an order in your system before creating a Wasa Kredit checkout, you have the possibility to supply a temporary identifier to be able to match the Wasa Kredit order with some reference in your system. You also have the option to add additional reference identifiers at a later time, for example when your final order is created (see [Add order references](#add_order_reference)).
 
 The URL that you supply with the `PingUrl` property should be an endpoint that is set up to receive a POST message and return an http status code 200 response on success.
 
@@ -120,7 +120,7 @@ The return object of the `CreateCheckout` method is a html snippet which you sho
 
 ## <a name="initialize_checkout">Initialize checkout</a>
 
-After creating a Wasa Kredit Checkout by calling the `CreateCheckout` method and embedding the resulting html snippet in your web page, as described above, the checkout html snippet needs to be explicitly initialized through a javascript call to the global `window.wasaCheckout.init()` function. The `init` method call will populate the \<div\> contained in the html snippet and link it to an internal iframe.
+After creating a Wasa Kredit Checkout by calling the `CreateCheckout` method and embedding the resulting html snippet in your web page, as described above, the checkout html snippet needs to be explicitly initialized through a javascript call to the global `window.wasaCheckout.init()` function. The `init` method call will populate the `<div>` contained in the html snippet and link it to an internal iframe.
 
 ```javascript
 <script>
@@ -192,7 +192,7 @@ The possible order statuses are:
 - initialized
   - The order has been created but the order agreement has not been signed by the customer.
 - canceled
-  - The purchase was not approved by Wasa Kredit. If you have created an order in your system it can safely be deleted.
+  - The purchase was not approved by Wasa Kredit or it has been canceled by you as a partner. If you have created an order in your system it can safely be deleted.
 - pending
   - The checkout has been completed and a customer has signed the order agreement, but additional signees is required or the order has not yet been fully approved by Wasa Kredit.
 - ready_to_ship
@@ -210,7 +210,7 @@ To match the Wasa Kredit order against your internal cart/checkout/order, call t
 
 To be able to match your internal cart/checkout/order against the Wasa Kredit order you are able to provide an unlimited set of order references. Order references might be provided in two ways.
 
-1. In the Create Checkout request.
+1. In the `CreateCheckout` method call.
 2. By calling the `AddOrderReference` method. This might be done at anytime as long as you have the Wasa Kredit order id. *Notice that this operation will add the additional order references to any previous order references.*
 
 The order reference object is a collection of key-value pairs where the key is the reference identifier (i.e. describes the type of reference) and the value is the actual reference id.
