@@ -1,7 +1,7 @@
 # Introduction
 
 The Wasa Kredit B2B checkout is a streamlined and easy way to offer Wasa Kredit’s financial products on an e-commerce site. 
-Currently, we are offering leasing as a payment method. Additional, forthcoming financial products are in the roadmap ahead. 
+Currently, we are offering leasing or rental as a payment method. Additional, forthcoming financial products are in the roadmap ahead. 
 The checkout provides an automated customer journey and leasing agreement signing is done with BankID.
 
 There are three main approaches for integrating the checkout service:
