@@ -24,6 +24,80 @@ The response body will look something like this:
 
 When performing any other calls to the API the `access_token` value has to be included in the Authorization header.
 
+## Validate Financed Amount
+
+To validate whether the Wasa Kredit payment method should be displayed for a given cart amount or not, send a GET request to `validate-financed-amount` with the cart amount value specified in a request parameter called `amount`. 
+
+For example, the GET request 
+
+```
+validate-financed-amount?amount=45000
+``` 
+
+will validate a cart amount value of 45000 SEK.
+
+The response body will look something like this:
+
+```json
+{
+  "validation_result": true
+}
+```
+
+The Wasa Kredit payment method should only be displayed for the specified cart amount if the value of `validation_result` is `true`. If the value of `validation_result` is `false`, the Wasa Kredit payment method should not be displayed.
+
+
+## Payment methods
+
+To get possible payment methods for a partner, send a GET request to `payment-methods` with the request parameter `total_amount`, which holds the total amount of the cart, and the request parameter `currency`, which holds a currency code represented as an ISO 4217 currency code. Note: At present, only SEK is handled. 
+
+For example, the GET request 
+
+```
+payment-methods?total_amount=45000&currency=SEK
+``` 
+
+will get payment methods for a cart amount value of 45000 SEK.
+
+The response body will look something like this:
+
+```json
+{
+    [
+        "id": "leasing",
+        "display_name": "Leasing",
+        "options": [
+            "default_contract_length": 24,
+            "contract_lengths": [
+                {
+                    "contract_length": 12,
+                    "monthly_cost": {
+                        "amount": "802",
+                        "currency: "SEK"
+                    }
+                },
+                {
+                    "contract_length": 24,
+                    "monthly_cost": {
+                        "amount": "442",
+                        "currency: "SEK"
+                    }
+                },
+                {
+                    "contract_length": 36,
+                    "monthly_cost": {
+                        "amount": "321",
+                        "currency: "SEK"
+                    }
+                }
+            ]
+        ]
+    ]
+}
+```
+
+The response above can be used to compose a description of which payment methods that are available in the checkout before it's loaded.   
+
 
 ## Create checkout
 
