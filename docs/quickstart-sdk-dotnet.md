@@ -43,22 +43,22 @@ wasaKreditClient.Initialize(authenticationClient, testMode);
 
 ## <a name="validate_financed_amount">Validate financed amount</a>
 
-To validate whether the Wasa Kredit payment method should be displayed for a given cart amount or not, call the `ValidateFinancedAmount` method on your `WasaKreditClient`. In the call you submit the current cart amount, e.g. 
+To validate whether the Wasa Kredit payment method should be displayed for a given cart amount or not, call the `ValidateFinancedAmount` method on your `WasaKreditClient`. In the call you provide the current cart amount, e.g. 
 
 
 ```c#
 var response = wasaKreditClient.ValidateFinancedAmount("10000.00");
 ```
 
-The response will tell you whether the submitted cart amount value is a valid financed amount or not.  
+The response will tell you whether the provided cart amount value is a valid financed amount or not.  
 
 ## <a name="get_payment_methods">Get payment methods</a>
 
-To get possible payment methods for a partner, call the `GetPaymentMethods` method on your `WasaKreditClient`. In the call you submit the current cart amount, e.g. 
+To get possible payment methods for a partner, call the `GetPaymentMethods` method on your `WasaKreditClient`. In the call you provide the current cart amount, e.g. 
 
 ```c#
 string amount = "20000";
-var response = await wasaKreditClient.GetPaymentMethods(amount);
+var response = wasaKreditClient.GetPaymentMethods(amount);
 ```
 
 The response can be used to compose a description of which payment methods that are available in the checkout before it's loaded.   
