@@ -63,36 +63,38 @@ The response body will look something like this:
 
 ```json
 {
-    [
-        "id": "leasing",
-        "display_name": "Leasing",
-        "options": [
-            "default_contract_length": 24,
-            "contract_lengths": [
-                {
-                    "contract_length": 12,
-                    "monthly_cost": {
-                        "amount": "802",
-                        "currency: "SEK"
-                    }
-                },
-                {
-                    "contract_length": 24,
-                    "monthly_cost": {
-                        "amount": "442",
-                        "currency: "SEK"
-                    }
-                },
-                {
-                    "contract_length": 36,
-                    "monthly_cost": {
-                        "amount": "321",
-                        "currency: "SEK"
-                    }
-                }
-            ]
+  "payment_methods": [
+    {
+      "id": "rental",
+      "display_name": "Rental",
+      "options": {
+        "default_contract_length": 24,
+        "contract_lengths": [
+          {
+            "contract_length": 12,
+            "monthly_cost": {
+              "amount": "3827.67967261452",
+              "currency": "SEK"
+            }
+          },
+          {
+            "contract_length": 24,
+            "monthly_cost": {
+              "amount": "1956.81346933379",
+              "currency": "SEK"
+            }
+          },
+          {
+            "contract_length": 36,
+            "monthly_cost": {
+              "amount": "1333.61056191973",
+              "currency": "SEK"
+            }
+          }
         ]
-    ]
+      }
+    }
+  ]
 }
 ```
 
