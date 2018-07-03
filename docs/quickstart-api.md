@@ -65,29 +65,29 @@ The response body will look something like this:
 {
   "payment_methods": [
     {
-      "id": "rental",
-      "display_name": "Rental",
+      "id": "leasing",
+      "display_name": "Leasing",
       "options": {
-        "default_contract_length": 24,
+        "default_contract_length": 36,
         "contract_lengths": [
-          {
-            "contract_length": 12,
-            "monthly_cost": {
-              "amount": "3827.67967261452",
-              "currency": "SEK"
-            }
-          },
           {
             "contract_length": 24,
             "monthly_cost": {
-              "amount": "1956.81346933379",
+              "amount": "555",
               "currency": "SEK"
             }
           },
           {
             "contract_length": 36,
             "monthly_cost": {
-              "amount": "1333.61056191973",
+              "amount": "426",
+              "currency": "SEK"
+            }
+          },
+          {
+            "contract_length": 48,
+            "monthly_cost": {
+              "amount": "346",
               "currency": "SEK"
             }
           }
