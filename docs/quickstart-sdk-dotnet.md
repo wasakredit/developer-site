@@ -129,8 +129,8 @@ var request = new CreateCheckoutRequest
             },
   RecipientName = "Anders Svensson", // Optional
   RecipientPhone = "07001234567", // Optional
-  RequestDomain = "https://www.wasa-partner.se", // Optional, but needed to resize iframe automatically.
-  PingUrl = "https://www.wasa-partner.se/payment-callback/" // Optional, but needed for status updates.
+  RequestDomain = "https://YOUR-BASE-DOMAIN", 
+  PingUrl = "https://YOUR-BASE-DOMAIN/payment-callback/" // Optional, but needed for status updates.
 };
 
 var response = wasaKreditClient.CreateCheckout(request);
