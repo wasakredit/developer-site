@@ -155,9 +155,9 @@ The first step is to POST to `/checkouts` with the following body:
   },
   "recipient_name": "Anders Svensson",
   "recipient_phone": "070-1234567",
-  "request_domain": "https://www.wasa-partner.se",
-  "confirmation_callback_url": "https://www.wasa-partner.se/payment-callback/",
-  "ping_url": "https://www.wasa-partner.se/order-updated/"
+  "request_domain": "https://YOUR-BASE-DOMAIN",
+  "confirmation_callback_url": "https://YOUR-BASE-DOMAIN/payment-callback/",
+  "ping_url": "https://YOUR-BASE-DOMAIN/order-updated/"
 }
 ```
 
