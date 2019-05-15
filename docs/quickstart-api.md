@@ -4,12 +4,8 @@
 
 Calls to the API for orders and checkouts need to include an access token header. To get the access token, POST to `/connect/token/` with the body:
 
-```json
-{
-	"client_id" : "12983019283",
-	"client_secret" : "120csk20fa9g1350vm",
-	"grant_type": "client_credentials"
-}
+```
+client_id=12983019283&client_secret=120csk20fa9g1350vm&grant_type=client_credentials
 ```
 
 The response body will look something like this:
