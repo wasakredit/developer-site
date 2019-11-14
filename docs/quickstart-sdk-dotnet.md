@@ -154,7 +154,7 @@ After creating a Wasa Kredit Checkout by calling the `CreateCheckout` method and
 
 ### <a name="custom_callbacks">Handling custom checkout callbacks</a>
 
-Optionally, you're able to pass an options object to the `init` javascript function. Use this if you want your own custom handling of the onComplete, onRedirect and onCancel checkout events.
+You're able to pass an options object to the `init` javascript function. Use this if you want your own custom handling of the onComplete, onRedirect and onCancel checkout events.
 
 ```javascript
 <script>
