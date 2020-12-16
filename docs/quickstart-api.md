@@ -20,14 +20,14 @@ The response body will look something like this:
 
 When performing calls to the API for orders and checkouts the `access_token` value has to be included in the Authorization header.
 
-## Validate Financed Amount
+## Leasing/Rental Validate Financed Amount
 
-To validate whether the Wasa Kredit payment method should be displayed for a given cart amount or not, send a GET request to `validate-financed-amount` with the cart amount value specified in a request parameter called `amount` and the partner id value specified in a request parameter called `partner_id`. 
+To validate whether the Wasa Kredit payment method should be displayed for a given cart amount or not, send a GET request to `leasing/validate-financed-amount` with the cart amount value specified in a request parameter called `amount`. 
 
 For example, the GET request 
 
 ```
-validate-financed-amount?amount=45000&partner_id=f404e318-7180-47ab-91db-fbb66addf577
+leasing/validate-financed-amount?amount=45000
 ``` 
 
 will validate a cart amount value of 45000 SEK.
@@ -42,15 +42,38 @@ The response body will look something like this:
 
 The Wasa Kredit payment method should only be displayed for the specified cart amount if the value of `validation_result` is `true`. If the value of `validation_result` is `false`, the Wasa Kredit payment method should not be displayed.
 
+## Invoice Validate Financed Amount
 
-## Payment methods
-
-To get possible payment methods for a partner, send a GET request to `payment-methods` with the request parameter `total_amount`, which holds the total amount of the cart, and the request parameter `currency`, which holds a currency code represented as an ISO 4217 currency code, and the request parameter `partner_id`, which holds the partner id as a string. Note: At present, only SEK is handled. 
+To validate whether the Wasa Kredit payment method should be displayed for a given cart amount or not, send a GET request to `invoice/validate-financed-amount` with the cart amount value specified in a request parameter called `amount`. 
 
 For example, the GET request 
 
 ```
-payment-methods?total_amount=45000&currency=SEK&partner_id=f404e318-7180-47ab-91db-fbb66addf577
+invoice/validate-financed-amount?amount=45000
+``` 
+
+will validate a cart amount value of 45000 SEK.
+
+The response body will look something like this:
+
+```json
+{
+  "validation_result": true
+}
+```
+
+The Wasa Kredit payment method should only be displayed for the specified cart amount if the value of `validation_result` is `true`. If the value of `validation_result` is `false`, the Wasa Kredit payment method should not be displayed.
+
+## Payment methods
+
+To get possible payment methods for a partner, send a GET request to `payment-methods` with the request parameter `total_amount`, which holds the total amount of the cart. 
+
+Note: At present, only SEK is handled. 
+
+For example, the GET request 
+
+```
+payment-methods?total_amount=45000
 ``` 
 
 will get payment methods for a cart amount value of 45000 SEK.
@@ -60,50 +83,71 @@ The response body will look something like this:
 ```json
 {
   "payment_methods": [
-    {
-      "id": "leasing",
-      "display_name": "Leasing",
-      "options": {
-        "default_contract_length": 36,
-        "contract_lengths": [
-          {
-            "contract_length": 24,
-            "monthly_cost": {
-              "amount": "555",
-              "currency": "SEK"
-            }
-          },
-          {
-            "contract_length": 36,
-            "monthly_cost": {
-              "amount": "426",
-              "currency": "SEK"
-            }
-          },
-          {
-            "contract_length": 48,
-            "monthly_cost": {
-              "amount": "346",
-              "currency": "SEK"
-            }
-          }
-        ]
+      {
+          "id": "leasing",
+          "display_name":"Leasing"
+      },
+        {
+          "id": "invoice",
+          "display_name":"Faktura"
       }
-    }
   ]
 }
 ```
 
 The response above can be used to compose a description of which payment methods that are available in the checkout before it's loaded.   
 
+## Leasing/Rental Payment options
 
-## Create checkout
+To get possible leasing/rental payment options for a funded amount, send a GET request to `leasing/payment-options` with the request parameter `total_amount`, which holds the total amount of the cart. And the request parameter `currency`, which holds a currency code represented as an ISO 4217 currency code.
 
-The first step is to POST to `/checkouts` with the following body:
+Note: At present, only SEK is handled. 
+
+For example, the GET request 
+
+```
+leasing/payment-options?total_amount=45000&currency=SEK
+``` 
+
+will get leasing/rental payment options for a cart amount value of 45000 SEK.
+
+The response body will look something like this:
+
+```json
+{
+  "default_contract_length": 36,
+  "contract_lengths": [
+    {
+      "contract_length": 24,
+      "monthly_cost": {
+        "amount": "555",
+        "currency": "SEK"
+      }
+    },
+    {
+      "contract_length": 36,
+      "monthly_cost": {
+        "amount": "426",
+        "currency": "SEK"
+      }
+    },
+    {
+      "contract_length": 48,
+      "monthly_cost": {
+        "amount": "346",
+        "currency": "SEK"
+        }
+    }
+  ]
+}
+```
+
+## Create leasing/rental checkout
+
+The first step is to POST to `leasing/checkouts` with the following body:
 ```json
 {
   "payment_types": "leasing",
-  "order_reference_id": "a1be9394-182d-49c7-a470-ea59e68ce3ef",
   "order_references": [
     {
       "key": "partner_order_number",
@@ -136,18 +180,96 @@ The first step is to POST to `/checkouts` with the following body:
   "purchaser_email": "purchaser@gmail.com",
   "purchaser_phone": "070-1234567",
   "billing_address": {
-    "company_name": "Star Republic",
+    "company_name": "Customer Company Name",
     "street_address": "Ekelundsgatan 9",
     "postal_code": "41118",
     "city": "Gothenburg",
     "country": "Sweden"
   },
   "delivery_address": {
-    "company_name": "Star Republic",
+    "company_name": "Customer Company Name",
     "street_address": "Ekelundsgatan 9",
     "postal_code": "41118",
     "city": "Gothenburg",
     "country": "Sweden"
+  },
+  "recipient_name": "Anders Svensson",
+  "recipient_phone": "070-1234567",
+  "request_domain": "https://YOUR-BASE-DOMAIN",
+  "confirmation_callback_url": "https://YOUR-BASE-DOMAIN/payment-callback/",
+  "ping_url": "https://YOUR-BASE-DOMAIN/order-updated/"
+}
+```
+
+Note that the property `order_references` is a collection so that even if you don't want to create an order in your system before creating a Wasa Kredit checkout you have the possibility to supply a temporary identifier to be able to match the Wasa Kredit order with some reference in your system. You also have the option to add additional reference identifiers at a later time, for example when your final order is created.
+
+The URL that you supply through the `ping_url` property should be an endpoint that is set up to receive a POST message and return an http status code 200 response on success.
+
+You will receive an html snippet which you should embed in your web page, inside of which the Wasa Kredit Checkout widget will handle the payment flow.
+
+## Create invoice checkout
+
+The first step is to POST to `invoice/checkouts` with the following body:
+```json
+{
+  "order_references": [
+    {
+      "key": "partner_order_number",
+      "value": "123456"
+    }
+  ],
+  "cart_items": [
+    {
+      "product_id": "ez-41239b",
+      "product_name": "Kylskåp EZ3",
+      "price_ex_vat": {
+        "amount": "14995.50",
+        "currency": "SEK"
+      },
+      "price_incl_vat": {
+        "amount": "14995.50",
+        "currency": "SEK"
+      },
+      "quantity": 1,
+      "vat_percentage": "25",
+      "vat_amount": {
+        "amount": "14995.50",
+        "currency": "SEK"
+      },
+      "total_price_incl_vat": {
+        "amount": "14995.50",
+        "currency": "SEK"
+      },
+      "total_price_ex_vat": {
+        "amount": "14995.50",
+        "currency": "SEK"
+      },
+      "total_vat": {
+        "amount": "14995.50",
+        "currency": "SEK"
+      }
+    }
+  ],
+  "total_price_incl_vat": {
+    "amount": "14995.50",
+    "currency": "SEK"
+  },
+  "total_price_ex_vat": {
+    "amount": "14995.50",
+    "currency": "SEK"
+  },
+  "total_vat": {
+    "amount": "14995.50",
+    "currency": "SEK"
+  },
+  "customer_organization_number": "222222-2222",
+  "purchaser_name": "Anders Svensson",
+  "purchaser_email": "purchaser@gmail.com",
+  "purchaser_phone": "070-1234567",
+  "partner_reference": "Salesman Svensson",
+  "billing_details": {
+    "billing_reference": "Billing reference",
+    "billing_tag": "Tag"
   },
   "recipient_name": "Anders Svensson",
   "recipient_phone": "070-1234567",
@@ -213,7 +335,7 @@ orderReferences = [
 
 ## Handling order status changes via pingbacks
 
-When calling the Create Checkout operation, Wasa Kredit will also create an order. When the order is created or when the order status is updated, you will receive a POST to the supplied `ping_url`, which contains the following body:
+When calling the Create Checkout operation. When the order is created or when the order status is updated, you will receive a POST to the supplied `ping_url`, which contains the following body:
 
 ```json
 {
@@ -230,14 +352,14 @@ Using the Wasa Kredit order id (`order_id`), provided in the pingback body, you 
 {
   "customer_organization_number": "222222-2222",
   "delivery_address": {
-    "company_name": "Star Republic",
+    "company_name": "Customer Company Name",
     "street_address": "Ekelundsgatan 9",
     "postal_code": "41118",
     "city": "Gothenburg",
     "country": "Sweden"
   },
   "billing_address": {
-    "company_name": "Star Republic",
+    "company_name": "Customer Company Name",
     "street_address": "Ekelundsgatan 9",
     "postal_code": "41118",
     "city": "Gothenburg",
@@ -259,6 +381,7 @@ Using the Wasa Kredit order id (`order_id`), provided in the pingback body, you 
     {
       "product_id": "ez-41239b",
       "product_name": "Kylskåp EZ3",
+      "price_ex_vat": {
         "amount": "14995.50",
         "currency": "SEK"
       },
@@ -280,20 +403,20 @@ Each time the order status is updated you will receive a pingback, enabling you 
 
 The possible order statuses are:
 
-- initialized
+- initialized (only for leasing/rental)
   - The order has been created but the order agreement has not been signed by the customer.
 - canceled
   - The purchase was not approved by Wasa Kredit or it has been canceled by you as a partner. If you have created an order in your system it can safely be deleted.
-- pending
+- pending (only for leasing/rental)
   - The checkout has been completed and a customer has signed the order agreement, but additional signees is required or the order has not yet been fully approved by Wasa Kredit.
-- ready_to_ship
+- ready_to_ship (this is the first status for invoice order)
   - All necessary signees have signed the order agreement and the order has been fully approved by Wasa Kredit. The order must now be shipped to the customer before Wasa Kredit will issue the payment to you as a partner.
 - shipped
   - This status is set by the partner when the order item(s) have been shipped to the customer.
 
 ### Best Practises
 
-The preferred point in time to create the order in your system is when receiveing a pingback with order status "pending".
+The preferred point in time to create the order in your system is when receiveing a pingback with order status "pending" for leasing and "ready_to_ship" for invoice.
 
 To match the Wasa Kredit order against your internal cart/checkout/order, issue a GET against `/orders/{order_id}` and use the `order_references`-object in the response.
 

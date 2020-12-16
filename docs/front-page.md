@@ -1,28 +1,34 @@
 # Introduction
 
 The Wasa Kredit B2B checkout is a streamlined and easy way to offer Wasa Kredit’s financial products on an e-commerce site. 
-Currently, we are offering leasing or rental as a payment method. Additional, forthcoming financial products are in the roadmap ahead. 
-The checkout provides an automated customer journey and leasing agreement signing is done with BankID.
+Currently, we are offering leasing, rental or invoice as a payment method. Additional, forthcoming financial products are in the roadmap ahead. 
+The checkout provides an automated customer journey and agreement signing is done with BankID.
 
 There are three main approaches for integrating the checkout service:
 
 ## Platform
 
-At present, we provide an extension to one open source e-commerce platform. Please feel free to contact us with suggestions 
-for future supported platforms.
+At present, we provide an extension to multiple e-commerce platforms. Please feel free to contact us with suggestions for future supported platforms.
 
-Magento 1.x
+- Abicart
+- E37
+- JetShop
+- Magento 1.x
+- Magento 2.x
+- Nordisk e-handel
+- OpenCart
+- Prestashop
+- Pyramid
+- Sitedirect
+- Wikinggruppen
+- WooCommerce
 
 ## SDK
 
-At the moment we offer a PHP SDK to facilitate and speed up your integration process. Additional SDKs for common languages 
-will be provided in the near future.
+At the moment we offer a PHP and .Net SDK to facilitate and speed up your integration process. 
 
-PHP SDK
-
-Planned SDK
-
-.net SDK
+- PHP SDK
+- .net SDK
 
 ## API
 
@@ -31,7 +37,6 @@ endpoints and operations necessary for integrating with the checkout as well as 
 as a product leasing price widget.
 
 API documentation
-
 
 ## Sign up
 
