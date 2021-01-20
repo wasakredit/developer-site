@@ -1,5 +1,8 @@
 # Quick start using the API
 
+## API URL
+Calls to the API goes to https://b2b.services.wasakredit.se for example "https://b2b.services.wasakredit.se/v4/leasing/monthly-cost"
+
 ## Get access token
 
 Calls to the API for orders and checkouts need to include an access token header. To get the access token, POST to `/connect/token/` with the body:
