@@ -2,10 +2,15 @@
 
 ## API URL
 Calls to the API goes to https://b2b.services.wasakredit.se for example "https://b2b.services.wasakredit.se/v4/leasing/monthly-cost"
+For testing use this url instead https://api.inttest-b2b.wasakredit.se.
+
+The path to auth server is "https://b2b.services.wasakredit.se/auth" in production and here in test "https://auth.inttest-b2b.wasakredit.se".
 
 ## Get access token
 
-Calls to the API for orders and checkouts need to include an access token header. To get the access token, POST to `/connect/token/` with the body:
+Calls to the API for orders and checkouts need to include an access token header. 
+To get the access token in production, POST to `https://b2b.services.wasakredit.se/auth/connect/token/` with the body below.
+To get the access token in production, POST to `https://auth.inttest-b2b.wasakredit.se/connect/token/` with the body below.
 
 ```
 client_id=12983019283&client_secret=120csk20fa9g1350vm&grant_type=client_credentials
