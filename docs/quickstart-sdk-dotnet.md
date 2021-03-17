@@ -63,9 +63,9 @@ var response = wasaKreditClient.GetPaymentMethods(amount);
 
 The response can be used to compose a description of which payment methods that are available in the checkout before it's loaded.   
 
-## <a name="create_checkout">Create checkout</a>
+## <a name="create_checkout">Create Leasing checkout</a>
 
-Create a new checkout request and pass it to the `CreateCheckout` method on your `WasaKreditClient`.
+Create a new checkout request and pass it to the `CreateLeasingCheckout` method on your `WasaKreditClient`.
 
 ### Create checkout example
 
@@ -133,14 +133,114 @@ var request = new CreateCheckoutRequest
   PingUrl = "https://YOUR-BASE-DOMAIN/payment-callback/" // Optional, but needed for status updates.
 };
 
-var response = wasaKreditClient.CreateCheckout(request);
+var response = wasaKreditClient.CreateLeasingCheckout(request);
 ```
 
 Note that the `OrderReferences` property is a collection. Even if you don't want to create an order in your system before creating a Wasa Kredit checkout, you have the possibility to supply a temporary identifier to be able to match the Wasa Kredit order with some reference in your system. You also have the option to add additional reference identifiers at a later time, for example when your final order is created (see [Add order references](#add_order_reference)).
 
 The URL that you supply with the `PingUrl` property should be an endpoint that is set up to receive a POST message and return an http status code 200 response on success.
 
-The return object of the `CreateCheckout` method is a html snippet which you should embed in your web page, inside of which the Wasa Kredit Checkout widget will handle the payment flow.
+The return object of the `CreateLeasingCheckout` method is a html snippet which you should embed in your web page, inside of which the Wasa Kredit Checkout widget will handle the payment flow.
+
+## <a name="create_checkout">Create Invoice checkout</a>
+
+Create a new checkout request and pass it to the `CreateInvoiceCheckout` method on your `WasaKreditClient`.
+
+### Create checkout example
+
+```c#
+var request = new CreateInvoiceCheckoutRequest
+{
+  OrderReferences = new [] // Optional but strongly recommended.  
+            {
+                new OrderReference
+                {
+                    Key = "temp_order_number",
+                    Value = "12345"
+                }
+            }
+  CartItems = new List<InvoiceCartItem>
+            {
+                new CartItem
+                {
+                    ProductId = "ez-32131",
+                    ProductName = "Kylskåp EZ3",
+                    PriceExVat = new Price
+                    {
+                        Amount = "10000.0",
+                        Currency = "SEK"
+                    },
+                    PriceInclVat = new Price
+                    {
+                        Amount = "12500.0",
+                        Currency = "SEK"
+                    },
+                    Quantity = 1,
+                    VatPercentage = "25",
+                    VatAmount = new Price
+                    {
+                        Amount = "2500.00", // Vat per item
+                        Currency = "SEK"
+                    },
+                    TotalPriceInclVat  = new Price
+                    {
+                        Amount = "12500.00",
+                        Currency = "SEK"
+                    },
+                    TotalPriceExVat = new Price
+                    {
+                        Amount = "10000.00",
+                        Currency = "SEK"
+                    },
+                    TotalVat = new Price
+                    {
+                        Amount = "25000.00",
+                        Currency = "SEK"
+                    }
+                }
+            },
+  TotalPriceInclVat  = new Price
+  {
+      Amount = "12500.00",
+      Currency = "SEK"
+  },
+  TotalPriceExVat = new Price
+  {
+      Amount = "10000.00",
+      Currency = "SEK"
+  },
+  TotalVat = new Price
+  {
+      Amount = "25000.00",
+      Currency = "SEK"
+  },
+  CustomerOrganizationNumber = "2222222-2222", // Optional
+  PurchaserName = "Anders Svensson", // Optional
+  PurchaserEmail = "email@example.com", // Optional
+  PurchaserPhone = "07001234567", // Optional
+  PartnerReference = "My partner reference", 
+  BillingAddress = new Address // Optional
+            {
+                City = "Göteborg",
+                CompanyName = "Star Republic AB",
+                Country = "Sweden",
+                PostalCode = "41116",
+                StreetAddress = "Eklundsgatan 9"
+            },
+  RecipientName = "Anders Svensson", // Optional
+  RecipientPhone = "07001234567", // Optional
+  RequestDomain = "https://YOUR-BASE-DOMAIN", 
+  PingUrl = "https://YOUR-BASE-DOMAIN/payment-callback/" // Optional, but needed for status updates.
+};
+
+var response = wasaKreditClient.CreateInvoiceCheckout(request);
+```
+
+Note that the `OrderReferences` property is a collection. Even if you don't want to create an order in your system before creating a Wasa Kredit checkout, you have the possibility to supply a temporary identifier to be able to match the Wasa Kredit order with some reference in your system. You also have the option to add additional reference identifiers at a later time, for example when your final order is created (see [Add order references](#add_order_reference)).
+
+The URL that you supply with the `PingUrl` property should be an endpoint that is set up to receive a POST message and return an http status code 200 response on success.
+
+The return object of the `CreateInvoiceCheckout` method is a html snippet which you should embed in your web page, inside of which the Wasa Kredit Checkout widget will handle the payment flow.
 
 ## <a name="initialize_checkout">Initialize checkout</a>
 
