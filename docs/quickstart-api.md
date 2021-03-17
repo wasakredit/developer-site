@@ -429,7 +429,7 @@ The preferred point in time to create the order in your system is when receivein
 
 To match the Wasa Kredit order against your internal cart/checkout/order, issue a GET against `/orders/{order_id}` and use the `order_references`-object in the response.
 
-## Create order reference
+## Add order reference
 
 To be able to match your internal cart/checkout/order against the Wasa Kredit order you are able to provide an unlimited set of order references. Order references might be provided in two ways.
 
@@ -451,14 +451,14 @@ The order reference object is a list of key-value pairs where the key is the ref
 ]
 ```
 
-Order referenses are added one at a time through POSTs to `/orders/{order_id}/order-references`.
+Order references are added one at a time through POSTs to `/orders/{order_id}/order-references`.
 
 ## Complete an order
 
 1. When an order is ready to be shipped to the customer (i.e. it has been signed by all necessary signees and fully approved by Wasa Kredit), you will receive a pingback with order status `ready_to_ship`. You should now ship the order items to the customer.
-2. When the order items are shipped to the customer, call the Update Order Status operation by issuing a PUT to `/orders/{order_id}/status/{status}` with the status `shipped`.
+2. When the order items are shipped to the customer, call the Update Order Status operation by issuing a PUT to `/orders/{order_id}/ship`.
 3. As a confirmation you will now receive a pingback with order status `shipped`.
 
 ## Cancel an order
 
-To cancel an order, call the Update Order Status operation by issuing a PUT to `/orders/{order_id}/status/{status}` with the status `canceled`. Orders that have already been shipped cannot be canceled.
+To cancel an order, call the Update Order Status operation by issuing a PUT to `/orders/{order_id}/cancel`. Orders that have already been shipped cannot be canceled.
