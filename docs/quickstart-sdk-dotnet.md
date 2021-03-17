@@ -250,29 +250,42 @@ var request = new AddOrderReferenceRequest { Key = "Quote", Value = quoteId };
 var response = client.AddOrderReference(orderId, request);
 ```
 
-## <a name="complete_order">Complete an order</a>
+## <a name="complete_order">Ship an order</a>
 
 1. When an order is ready to be shipped to the customer (i.e. it has been signed by all necessary signees and is fully approved by Wasa Kredit), you will receive a pingback with order status `ready_to_ship`. You should now ship the order items to the customer.
-2. When the order items are shipped to the customer, call the `UpdateOrderStatus` method (see example below) with the status `shipped`.
+2. When the order items are shipped to the customer, call the `ShipOrder` method.
 3. As a confirmation you will now receive a pingback with order status `shipped`.
 
-## <a name="cancel_order">Cancel an order</a>
-
-To cancel an order, call the `UpdateOrderStatus` method (see example below) with the status `canceled`. Orders that have already been shipped cannot be canceled.
-
-### Update order status example
+### Ship order example
 
 ```c#
 
 var orderId = "9c722707-123a-44e7-9eba-93e3a372d57e";
 
-var request = new UpdateOrderStatusRequest
+var request = new ShipOrderRequest
 {
     OrderId = orderId,
-    Status = new OrderStatus {Status = "shipped"}
 };
 
-var response = client.UpdateOrderStatus(request);
+var response = client.ShipOrder(request);
+```
+
+## <a name="cancel_order">Cancel an order</a>
+
+To cancel an order, call the `CancelOrder` method (see example below). Orders that have already been shipped cannot be canceled.
+
+### Cancel order example
+
+```c#
+
+var orderId = "9c722707-123a-44e7-9eba-93e3a372d57e";
+
+var request = new CancelOrderRequest
+{
+    OrderId = orderId,
+};
+
+var response = client.CancelOrder(request);
 ```
 
 ## Responses
