@@ -161,7 +161,7 @@ The response body will look something like this:
 
 ## Create leasing/rental checkout
 
-The first step is to POST to `leasing/checkouts` with the following body:
+The first step is to POST to `leasing/checkout` with the following body:
 ```json
 {
   "payment_types": "leasing",
@@ -226,7 +226,7 @@ You will receive an html snippet which you should embed in your web page, inside
 
 ## Create invoice checkout
 
-The first step is to POST to `invoice/checkouts` with the following body:
+The first step is to POST to `invoice/checkout` with the following body:
 ```json
 {
   "order_references": [
